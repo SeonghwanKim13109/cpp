@@ -2,6 +2,12 @@
 #include <time.h>
 
 using namespace std;
+enum NUM {
+	NUM_0 = 10,
+	NUM_1,
+	NUM_2 = 0x10,
+	NUM_3
+};
 
 int main() {
 	srand((unsigned int)time(0));
@@ -66,5 +72,9 @@ int main() {
 		}
 		cout << fail << endl << endl;
 	}
+
+	NUM eNum;
+	cout << sizeof(NUM) << endl;
+	cout << typeid(eNum).name() << endl;
 	return 0;
 }
