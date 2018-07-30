@@ -18,5 +18,8 @@
     <ClCompile Include="cpp_3_lotto.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="cpp_3_lotto_2.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
