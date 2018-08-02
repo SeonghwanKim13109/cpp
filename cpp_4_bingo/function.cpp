@@ -35,6 +35,8 @@ void swap(int* arr, int idx1, int idx2) {
 	arr[idx2] = temp;
 }
 
+//https://blog.naver.com/sharonichoya/220874370397
+//콘솔 글자 배경색 변경
 static void setColor(unsigned short text, unsigned short back) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text | (back << 4));
 }
