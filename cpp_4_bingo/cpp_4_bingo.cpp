@@ -14,12 +14,16 @@ int main() {
 	makeArr(arr, SIZE);
 	shuffle(arr, SIZE);
 	while (true) {
+		int check = bingoCheck(selected);
 		display(arr, SIZE,currPosi,selected);
+		cout << "Bingo :  " << check << endl;
+		if (check == 5)
+			break;
 		char cmd = _getch();
 		//cout << (int)cmd << endl;
 		command(cmd,&currPosi,selected);
-		if (bingoCheck(selected) == 5)
-			break;
+
+		
 		clear;
 	}
 	return 0;
