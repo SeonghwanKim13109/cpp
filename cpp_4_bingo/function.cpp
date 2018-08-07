@@ -13,7 +13,16 @@
 #define WHITE 15
 #define ENTER 13
 using namespace std;
-
+int aiMode() {
+	cout << "AI 난이도를 선택해 주십시오" << endl;
+	int hard;
+	while (true) {
+		cout << "1 : Easy Mode , 2 : Hard Mode" << endl;
+		cin >> hard;
+		if (hard == 1 || hard == 2)
+			return hard;
+	}
+}
 void makeArr(int* arr, int size) {
 	for (int i = 0; i < size; i++)
 		arr[i] = i + 1;
@@ -48,8 +57,13 @@ void display(int* arr, int size, int currPosi,bool* selected) {
 		else
 			setColor(BLACK, WHITE);
 
-		if (selected[i])
-			setColor(RED, GRAY);
+		if (selected[i]) {
+			if (i == currPosi)
+				setColor(RED, BLACK);
+			else
+				setColor(RED, GRAY);
+		}
+		
 		cout << arr[i];
 		setColor(BLACK, WHITE);
 		cout << "\t";
@@ -59,7 +73,14 @@ void display(int* arr, int size, int currPosi,bool* selected) {
 	
 }
 
-void command(char cmd, int* currPosi,bool* selected) {
+static int findNum(int* arr, int num, int size) {
+	for (int i = 0; i < size; i++)
+		if (arr[i] == num)
+			return i;
+	return -1;
+}
+
+void command(char cmd,int* userArr,int* aiArr, int* currPosi,bool* userSelected,bool* aiSelected,bool* already) {
 	switch (cmd) {
 	case LEFT :
 		if((*currPosi)%5 != 0)
@@ -70,7 +91,7 @@ void command(char cmd, int* currPosi,bool* selected) {
 			*currPosi+=1; 
 		break;
 	case UP :
-		if (*currPosi > 5)
+		if (*currPosi > 4)
 			*currPosi -= 5;
 		break;
 	case DOWN :
@@ -78,9 +99,93 @@ void command(char cmd, int* currPosi,bool* selected) {
 			*currPosi += 5;
 		break;
 	case ENTER :
-		selected[*currPosi] = true;
+		if (userSelected[*currPosi]) {
+			*already = true;
+			break;
+		}
+		else
+			userSelected[*currPosi] = true;
+		int num = userArr[*currPosi];
+		int position = findNum(aiArr, num,25);
+		aiSelected[position] = true;
 		break;
 	}
+}
+
+void aiCommand(int* userArr, int * aiArr, bool * userSelected, bool * aiSelected, int size) {
+	int num; 
+	int currPosi;  
+	do {
+		num = rand() % size;;
+		currPosi =findNum(aiArr, num,size);
+	} while (aiSelected[currPosi]);
+	//while문을 빠져나오면 선택되지 않았던 숫자가 선택된것
+	aiSelected[currPosi] = true;
+	currPosi = findNum(userArr, num,size);
+	userSelected[currPosi] = true;
+}
+
+static int findMaxRow(int * arr,bool * selected ,int * row ,int size) {
+	int number = (int)pow(size, 0.5);
+	int max_count = 0;
+	for (int i = 0; i < number; i++) { // 행 마다 확인
+		int count = 0;
+		for (int j = 0; j < number; j++)
+			if (selected[5 * i + j])
+				count++;
+		if(count != 5)
+			max_count = max_count > count ? max_count : count;
+		if (max_count == count)
+			*row = i;
+	}
+	return max_count;
+}
+
+static int findMaxCol(int * arr, bool* selected, int* col, int size) {
+	int number = pow(size, 0.5);
+	int max_count = 0;
+	for (int i = 0; i < number; i++) { // 열 마다 확인
+		int count = 0;
+		for (int j = 0; j < number; j++)
+			if (selected[i + j * 5])
+				count++;
+		if (count != 5)
+			max_count = max_count > count ? max_count : count;
+		if (max_count == count)
+			*col = i;
+	}
+	return max_count;
+}
+void aiHardCommand(int* userArr, int * aiArr, bool * userSelected, bool * aiSelected, int size) {
+	int number = pow(size, 0.5);
+	int row;
+	int row_count = findMaxRow(aiArr,aiSelected,&row,size);
+	int col;
+	int col_count = findMaxCol(aiArr,aiSelected,&col,size);
+	int currPosi = 0;
+
+	if (row_count > col_count ) {
+		for (int i = 0; i < number; i++) {	//열
+			if (!aiSelected[5 * row + i]) {
+				currPosi = 5 * row + i;
+				break;
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < number; i++) {	//행
+			if (!aiSelected[5 * i + col]) {
+				currPosi = 5 * i + col;
+				break;
+			}
+		}
+	}
+
+
+	int num = aiArr[currPosi];
+	aiSelected[currPosi] = true;
+	currPosi = findNum(userArr, num, 25);
+	userSelected[currPosi] = true;
 }
 
 static int bingoHorizontal( bool* selected) {
@@ -135,4 +240,9 @@ int bingoCheck( bool* selected) {
 	result += bingoVertical(selected);
 	result += bingoDiagonal(selected);
 	return result;
+}
+void clearArr(bool* selected, int size) {
+	for (int i = 0; i < size; i++) {
+		selected[i] = false;
+	}
 }
